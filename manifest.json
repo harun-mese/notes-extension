@@ -1,17 +1,16 @@
 {
     "manifest_version": 3,
     "name": "Selection Notes",
-    "version": "0.1.0",
-    "description": "Seçtiğin metinlerden not al ve listele.",
-    "permissions": ["storage", "contextMenus", "tabs"],
+    "version": "1.0.0",
+    "description": "Web sayfalarından seçtiğin metinlerden hızlıca not al.",
+    "permissions": ["storage", "contextMenus"],
     "host_permissions": ["<all_urls>"],
     "background": { "service_worker": "background.js" },
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
         "js": ["content.js"],
-        "css": ["content.css"],
-        "run_at": "document_idle"
+        "css": ["content.css"]
       }
     ],
     "action": {
