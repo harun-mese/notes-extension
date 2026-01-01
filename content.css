@@ -2,7 +2,6 @@
     position: absolute;
     z-index: 999999;
     display: none;
-    /* transform kaldırıldı: tıklamada kaybolma / kayma yapabiliyor */
   }
   
   .sn-card{

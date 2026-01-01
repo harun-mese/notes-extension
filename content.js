@@ -108,7 +108,6 @@ function createPopup() {
     </div>
   `;
 
-  // Popup içindeki pointerdown olayları dışarı tıklama gibi algılanmasın
   el.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
 
   document.documentElement.appendChild(el);

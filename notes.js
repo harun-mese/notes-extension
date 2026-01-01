@@ -16,7 +16,6 @@ function render() {
   const q = (qEl?.value || "").trim().toLowerCase();
 
   const filtered = !q ? notes : notes.filter(n => {
-    // ✅ storage alanları: text + comment
     const hay = `${n.text || ""}\n${n.comment || ""}\n${n.url || ""}\n${n.title || ""}`.toLowerCase();
     return hay.includes(q);
   });
@@ -78,7 +77,7 @@ function bindItemEvents() {
       });
 
       const idx = notes.findIndex(n => n.id === id);
-      if (idx >= 0) notes[idx].comment = comment; // ✅ doğru alan
+      if (idx >= 0) notes[idx].comment = comment; 
     };
   });
 }
