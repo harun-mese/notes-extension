@@ -131,9 +131,10 @@
     border: 1px solid rgba(0,0,0,.12);
     background: #fff;
     border-radius: 999px;
-    padding: 3px 20px;
+    padding: 5px 20px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 12px;    
+    font-weight: 900;
   }
   
   .btn:hover{
@@ -141,8 +142,8 @@
   }
   
   .btn-primary{
-    background: #111;
-    border-color: #111;
+    background: #189f00;
+    border-color: #11111100;
     color: #fff;
   }
   

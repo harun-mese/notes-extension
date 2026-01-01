@@ -1,86 +1,229 @@
+let iconEl = null;
 let popupEl = null;
-let isOpen = false;
-let lastSelectedText = "";
 
-document.addEventListener("mouseup", (e) => {
-  // Popup açıksa yeni selection ile uğraşma
-  if (isOpen) return;
+let lastSelectionText = "";
+let lastSelectionRect = null;
 
-  // Popup üzerine mouseup gelirse (kopyala/yapıştır gibi) ignore
-  if (popupEl && popupEl.contains(e.target)) return;
+init();
 
+function init() {
+  // seçimi takip et
+  document.addEventListener("selectionchange", onSelectionChange);
+
+  // dışarı tık = kapat
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      if (popupEl && popupEl.style.display === "block" && !popupEl.contains(e.target)) hidePopup();
+      if (iconEl && iconEl.style.display === "block" && !iconEl.contains(e.target)) hideIcon();
+    },
+    true
+  );
+
+  // escape = kapat
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      hidePopup();
+      hideIcon();
+    }
+  });
+
+  // scroll/resize = konum güncelle
+  window.addEventListener("scroll", () => {
+    if (iconEl?.style.display === "block") positionIcon();
+    if (popupEl?.style.display === "block") positionPopup();
+  }, { passive: true });
+
+  window.addEventListener("resize", () => {
+    if (iconEl?.style.display === "block") positionIcon();
+    if (popupEl?.style.display === "block") positionPopup();
+  });
+}
+
+function onSelectionChange() {
   const sel = window.getSelection();
   const text = sel?.toString()?.trim() || "";
-  if (!text || text.length < 2) return;
 
-  // Selection rect
-  let rect;
-  try {
-    const range = sel.getRangeAt(0);
-    rect = range.getBoundingClientRect();
-  } catch {
+  // popup açıkken selection ile oynama
+  if (popupEl?.style.display === "block") return;
+
+  if (!text || text.length < 2) {
+    lastSelectionText = "";
+    lastSelectionRect = null;
+    hideIcon();
     return;
   }
 
-  lastSelectedText = text;
-  showPopup(rect, text);
+  // input/textarea içi selection: karışmasın
+  const anchorNode = sel?.anchorNode;
+  const el = anchorNode?.nodeType === 1 ? anchorNode : anchorNode?.parentElement;
+  if (el && (el.closest("input, textarea, [contenteditable='true']"))) {
+    hideIcon();
+    return;
+  }
 
-  // Popup açıldıktan sonra selection’ı temizle (tıklayınca bozulmasın)
-  // ama popup hide etmesin diye isOpen zaten true
-  setTimeout(() => {
-    try { window.getSelection()?.removeAllRanges(); } catch {}
-  }, 0);
-});
+  // rect al
+  try {
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    if (!rect || rect.width < 2 || rect.height < 2) {
+      hideIcon();
+      return;
+    }
 
-document.addEventListener(
-  "pointerdown",
-  (e) => {
-    // Popup yoksa bir şey yapma
-    if (!popupEl) return;
+    lastSelectionText = text;
+    lastSelectionRect = rect;
 
-    // Popup içi tıklama -> kapatma
-    if (popupEl.contains(e.target)) return;
+    showIcon();
+  } catch {
+    hideIcon();
+  }
+}
 
-    // Dışarı tıklama -> kapat
-    hidePopup();
-  },
-  true // capture: daha stabil
-);
+// ---------- ICON ----------
+function ensureIcon() {
+  if (iconEl) return iconEl;
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && isOpen) hidePopup();
-});
+  iconEl = document.createElement("button");
+  iconEl.type = "button";
+  iconEl.className = "sn-icon";
+  iconEl.title = "Not al";
+  const iconUrl = chrome.runtime.getURL("icons/48.png");
+  iconEl.innerHTML = `
+    <span class="sn-icon-dot"></span>
+    <img src="${iconUrl}" alt="Not al" class="sn-icon-img" />
+  `;
 
-function showPopup(rect, selectedText) {
-  if (!popupEl) popupEl = createPopup();
+  
 
-  isOpen = true;
+  // ikon tıklanınca popup aç
+  iconEl.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+  }, true);
 
-  popupEl.querySelector("[data-selected]").textContent = selectedText;
+  iconEl.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    showPopup();
+  });
+
+  document.documentElement.appendChild(iconEl);
+  return iconEl;
+}
+
+function showIcon() {
+  ensureIcon();
+  positionIcon();
+  iconEl.style.display = "flex";
+}
+
+function hideIcon() {
+  if (!iconEl) return;
+  iconEl.style.display = "none";
+}
+
+function positionIcon() {
+  if (!iconEl || !lastSelectionRect) return;
+
+  const r = lastSelectionRect;
+
+  const iconW = 34; // icon genişliği
+  const centerX = r.left + r.width / 2;
+
+  const top  = window.scrollY + r.top - 38;
+  const left = window.scrollX + centerX - iconW / 2;
+
+  iconEl.style.top  = `${Math.max(8, top)}px`;
+  iconEl.style.left = `${Math.max(8, left)}px`;
+}
+
+
+// ---------- POPUP ----------
+function ensurePopup() {
+  if (popupEl) return popupEl;
+
+  popupEl = document.createElement("div");
+  popupEl.className = "sn-popup";
+  popupEl.innerHTML = `
+    <div class="sn-card" role="dialog" aria-label="Not ekle">
+      <div class="sn-head">
+        <div class="sn-title">Not ekle</div>
+        <button class="sn-close" type="button" data-close aria-label="Kapat">×</button>
+      </div>
+
+      <div class="sn-selected" data-selected></div>
+
+      <textarea id="textareaNote" name="textareaNote" class="sn-textarea" data-comment rows="1"
+        placeholder="Ek not... (isteğe bağlı)"></textarea>
+
+      
+
+      <div class="sn-actions">
+        <div class="sn-status" data-status>test ediliyor</div>
+        <button class="sn-btn sn-btn-ghost" type="button" data-cancel>İptal</button>
+        <button class="sn-btn" type="button" data-save>Kaydet</button>
+      </div>
+    </div>
+  `;
+
+  // popup içi tıklama dışarı gibi algılanmasın
+  popupEl.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+
+  popupEl.querySelector("[data-close]").addEventListener("click", hidePopup);
+  popupEl.querySelector("[data-cancel]").addEventListener("click", hidePopup);
+
+  popupEl.querySelector("[data-save]").addEventListener("click", saveNote);
+
+  document.documentElement.appendChild(popupEl);
+  return popupEl;
+}
+
+function showPopup() {
+  if (!lastSelectionText || !lastSelectionRect) return;
+
+  ensurePopup();
+
+  popupEl.querySelector("[data-selected]").textContent = lastSelectionText;
   popupEl.querySelector("[data-comment]").value = "";
   setStatus("");
 
-  // Konum: selection üstüne
-  const top = window.scrollY + rect.top - 10;
-  const left = window.scrollX + rect.left;
-
-  popupEl.style.top = `${top}px`;
-  popupEl.style.left = `${left}px`;
+  positionPopup();
   popupEl.style.display = "block";
 
-  // Focus textarea
+  // ikon kalsın ama istersen kapatabilirsin:
+  // hideIcon();
+
+  // focus
+  setTimeout(() => popupEl.querySelector("[data-comment]")?.focus(), 0);
+
+  // selection temizle (popup yazarken bozulmasın)
   setTimeout(() => {
-    popupEl.querySelector("[data-comment]")?.focus();
+    try { window.getSelection()?.removeAllRanges(); } catch {}
   }, 0);
 }
 
 function hidePopup() {
   if (!popupEl) return;
   popupEl.style.display = "none";
-  isOpen = false;
-  lastSelectedText = "";
   setStatus("");
 }
+
+function positionPopup() {
+  if (!popupEl || !iconEl) return;
+
+  const popupW = 340;
+
+  // ✅ ikonun pozisyonu
+  const iconRect = iconEl.getBoundingClientRect();
+  const centerX = iconRect.left + iconRect.width / 2;
+
+  const top  = window.scrollY + iconRect.bottom + 8;
+  const left = window.scrollX + centerX - popupW / 2;
+
+  popupEl.style.top  = `${top}px`;
+  popupEl.style.left = `${Math.max(8, left)}px`;
+}
+
 
 function setStatus(msg) {
   if (!popupEl) return;
@@ -88,70 +231,45 @@ function setStatus(msg) {
   if (el) el.textContent = msg || "";
 }
 
-function createPopup() {
-  const el = document.createElement("div");
-  el.className = "sn-popup";
+async function saveNote() {
+  const selected = (lastSelectionText || "").trim();
+  const comment = (popupEl.querySelector("[data-comment]")?.value || "").trim();
 
-  el.innerHTML = `
-    <div class="sn-card" role="dialog" aria-label="Selection note">
-      <div class="sn-selected" data-selected></div>
+  if (!selected) {
+    setStatus("Seçili metin yok.");
+    return;
+  }
 
-      <textarea class="sn-textarea" data-comment rows="3"
-        placeholder="Ek not... (isteğe bağlı)"></textarea>
+  if (!chrome?.runtime?.id) {
+    setStatus("Uzantı yenilendi. Sayfayı yenileyin (F5).");
+    return;
+  }
 
-      <div class="sn-status" data-status></div>
+  const payload = {
+    id: crypto.randomUUID(),
+    text: selected,
+    comment,
+    url: location.href,
+    title: document.title,
+    createdAt: Date.now()
+  };
 
-      <div class="sn-actions">
-        <button class="sn-btn sn-btn-ghost" data-cancel>İptal</button>
-        <button class="sn-btn" data-save>Kaydet</button>
-      </div>
-    </div>
-  `;
+  setStatus("Kaydediliyor...");
 
-  el.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+  try {
+    const res = await chrome.runtime.sendMessage({ type: "ADD_NOTE", payload });
+    if (!res?.ok) throw new Error(res?.message || "Kaydedilemedi");
+    setStatus("Kaydedildi ✅");
 
-  document.documentElement.appendChild(el);
-
-  el.querySelector("[data-cancel]").addEventListener("click", hidePopup);
-
-  el.querySelector("[data-save]").addEventListener("click", async () => {
-    const selected = (lastSelectedText || el.querySelector("[data-selected]").textContent || "").trim();
-    const comment = (el.querySelector("[data-comment]").value || "").trim();
-  
-    if (!selected) {
-      setStatus("Seçili metin bulunamadı.");
-      return;
-    }
-  
-    // ✅ uzantı reload edildi mi kontrol
-    if (!chrome?.runtime?.id) {
-      setStatus("Uzantı yenilendi. Sayfayı yenileyin (F5).");
-      return;
-    }
-  
-    const payload = {
-      id: crypto.randomUUID(),
-      text: selected,
-      comment,
-      url: location.href,
-      title: document.title,
-      createdAt: Date.now()
-    };
-  
-    setStatus("Kaydediliyor...");
-  
-    try {
-      const res = await chrome.runtime.sendMessage({ type: "ADD_NOTE", payload });
-      if (!res?.ok) throw new Error(res?.message || "Kaydedilemedi");
-      setStatus("Kaydedildi ✅");
-      setTimeout(hidePopup, 500);
-    } catch (err) {
-      // ✅ context invalidated dahil hepsini yakalar
-      console.error(err);
-      setStatus("Uzantı yeniden yüklendi. Sayfayı yenileyip tekrar deneyin.");
-    }
-  });
-  
-
-  return el;
+    // kapat
+    setTimeout(() => {
+      hidePopup();
+      hideIcon();
+      lastSelectionText = "";
+      lastSelectionRect = null;
+    }, 450);
+  } catch (err) {
+    console.error(err);
+    setStatus("Hata: Kaydedilemedi ❌");
+  }
 }
