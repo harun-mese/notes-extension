@@ -1,4 +1,4 @@
-# Selection Notes
+# Notes Extension
 
 A minimal Chrome extension to save notes from selected text while browsing the web.
 
@@ -24,7 +24,7 @@ All data is stored locally in your browser using `chrome.storage.local`.
 - No user accounts
 - No data collection
 - No external servers
-- Works offline
+- Works fully offline
 
 ---
 
@@ -32,4 +32,4 @@ All data is stored locally in your browser using `chrome.storage.local`.
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/USERNAME/selection-notes-extension.git
+   git clone https://github.com/USERNAME/notes-extension.git
