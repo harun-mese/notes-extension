@@ -32,4 +32,4 @@ All data is stored locally in your browser using `chrome.storage.local`.
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/USERNAME/notes-extension.git
+   git clone https://github.com/harun-mese/notes-extension.git
