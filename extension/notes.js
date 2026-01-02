@@ -47,9 +47,9 @@ function itemHtml(n) {
 
       <div class="quote">${safeText}</div>
 
+       <textarea  name="noteTextArea" class="note" placeholder="Not ekleyebilirsin..." data-comment rows="1">${safeComment}</textarea>
      
       <div class="actions">
-       <textarea  name="noteTextArea" class="note" placeholder="Not ekleyebilirsin..." data-comment rows="1">${safeComment}</textarea>
         <button class="btn btn-primary" data-save>Save note</button>
         <button class="btn deleteBtn" data-del>Delete</button>
       </div>
