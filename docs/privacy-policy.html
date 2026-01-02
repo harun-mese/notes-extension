@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy – Notes Extension</title>
+  <meta name="description" content="Privacy Policy for Notes Extension. This extension stores notes locally and does not collect or share personal data." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#5a5a5a;
+      --border:rgba(0,0,0,.12);
+      --card:rgba(0,0,0,.04);
+      --link:#0b57d0;
+      --radius:16px;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0b0b0c;
+        --text:#f2f2f2;
+        --muted:#b4b4b4;
+        --border:rgba(255,255,255,.14);
+        --card:rgba(255,255,255,.06);
+        --link:#8ab4f8;
+      }
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.55;
+    }
+    .wrap{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 44px 18px 70px;
+    }
+    .top{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 18px;
+    }
+    h1{
+      margin:0;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing:-0.02em;
+      line-height:1.2;
+    }
+    .meta{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:10px;
+    }
+    .card{
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius: var(--radius);
+      padding: 18px 18px;
+      margin-top: 14px;
+    }
+    h2{
+      margin:0 0 10px;
+      font-size: 18px;
+      letter-spacing:-0.01em;
+    }
+    p{margin: 0 0 12px}
+    ul{
+      margin: 0;
+      padding-left: 18px;
+    }
+    li{margin: 6px 0}
+    a{color:var(--link); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .footer{
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:13px;
+      color:var(--muted);
+      background:transparent;
+      user-select:none;
+    }
+    .dot{
+      width:9px;height:9px;border-radius:999px;
+      background: #16a34a;
+    }
+    @media (prefers-color-scheme: dark){
+      .dot{ background:#22c55e; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div>
+        <h1>Privacy Policy – Notes Extension</h1>
+        <div class="meta">Last updated: <span id="lastUpdated">2026-01-02</span></div>
+      </div>
+      <div class="badge" title="No data leaves your device">
+        <span class="dot" aria-hidden="true"></span>
+        Offline • Local-only
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Notes Extension</strong> does not collect, transmit, or share any personal data.</p>
+    </div>
+
+    <div class="card">
+      <h2>Data Storage</h2>
+      <p>All notes created by the user are stored locally in the browser using the Chrome <code>storage.local</code> API.</p>
+      <p>The stored data may include:</p>
+      <ul>
+        <li>User-selected text</li>
+        <li>Optional user-written notes</li>
+        <li>The source page URL and title</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>No Data Collection</h2>
+      <ul>
+        <li>No analytics</li>
+        <li>No tracking</li>
+        <li>No external servers</li>
+        <li>No third-party services</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Data Sharing</h2>
+      <p>No data is shared with any third parties.</p>
+    </div>
+
+    <div class="card">
+      <h2>Offline Use</h2>
+      <p>The extension works fully offline and all data remains on the user’s device.</p>
+    </div>
+
+    <div class="card">
+      <h2>Contact</h2>
+      <p>If you have questions about this privacy policy, you can contact:</p>
+      <p><strong>Harun Meşe</strong></p>
+      <!-- İstersen e-posta ekle:
+      <p><a href="mailto:you@example.com">you@example.com</a></p>
+      -->
+    </div>
+
+    <div class="footer">
+      <p>This page is provided for transparency. If you update extension behavior, please update this policy accordingly.</p>
+    </div>
+  </main>
+
+  <script>
+    // İstersen otomatik tarih yazdır:
+    // document.getElementById("lastUpdated").textContent = new Date().toISOString().slice(0,10);
+  </script>
+</body>
+</html>

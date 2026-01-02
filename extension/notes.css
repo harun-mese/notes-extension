@@ -103,13 +103,12 @@
   
   .quote{
     margin-top: 10px;
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1.6;
     white-space: pre-wrap;
   }
   
   .note{
-    margin-top: 10px;
     width: 100%;
     border: 1px solid rgba(0,0,0,.10);
     border-radius: 12px;
@@ -124,27 +123,34 @@
     display:flex;
     gap:10px;
     justify-content:flex-end;
+    align-items: center;
     margin-top: 10px;
   }
   
   .btn{
     border: 1px solid rgba(0,0,0,.12);
     background: #fff;
-    border-radius: 999px;
-    padding: 5px 20px;
+    border-radius: 8px;
+    padding: 10px 20px;
     cursor: pointer;
     font-size: 12px;    
     font-weight: 900;
+    white-space: nowrap;
   }
   
   .btn:hover{
     border-color: rgba(0,0,0,.22);
+    background-color: tomato;
   }
-  
+  .deleteBtn:hover .item{
+    background-color: tomato;
+  }
+
   .btn-primary{
     background: #189f00;
     border-color: #11111100;
     color: #fff;
+    border-radius: 999px;
   }
   
   .btn-primary:hover{
